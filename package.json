@@ -1,0 +1,17 @@
+{
+  "name": "video-tape",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bundle": "rollup -c"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^1.27.5"
+  },
+  "dependencies": {
+    "recordrtc": "^5.5.8"
+  }
+}
