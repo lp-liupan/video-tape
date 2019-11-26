@@ -1,5 +1,3 @@
-console.log('hello word')
-
 import RecordRTC from 'recordrtc'
 class Tape {
 	
@@ -8,7 +6,7 @@ class Tape {
 	}
 
 	/**
-	 *截图方法
+	 * 截图方法
 	 * @param {*} callback
 	 * @param {*} type
 	 * @param {*} fileName
@@ -67,7 +65,11 @@ class Tape {
 
 	//开始录制
 	tapeStart(){
-		this.rtc = new RecordRTC(this.videoEl,{
+		if(!HTMLVideoElement.prototype.caputureStream){
+			throw "该浏览器暂不支持录制功能"
+		}
+		let stream = this.videoEl.caputureStream();
+		this.rtc = new RecordRTC(stream,{
 			type:'video'
 		})
 		this.rtc.startRecording();
@@ -83,11 +85,23 @@ class Tape {
 		this.rtc.resumeRecording();
 	}
 
-	//停止录制
-	tapeStop(){
+	/**
+	 * 结束录制
+	 *
+	 * @param {*} callback
+	 * @param {string} [fileName='录制.mp4']
+	 * @memberof Tape
+	 */
+	tapeStop(callback,fileName='录制.mp4'){
+		if(!callback){
+			throw "tapeStop缺少第一个参数"
+		}
 		let self = this;
-		this.rtc.stopRecording((blob) => {
+		this.rtc.stopRecording((blobUrl) => {
 			let videoBlobFile = self.rtc.getBlob();
+			callback(videoBlobFile,blobUrl);
 		});
 	}
 }
+
+export default Tape;

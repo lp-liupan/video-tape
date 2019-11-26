@@ -1,7 +1,7 @@
 export default {
-	input:'main.js',
+	input:'src/tape.js',
 	output:{
 		file:'dist/video-tape.js',
-		format:'esm'
+		format:'es'
 	}
 }
