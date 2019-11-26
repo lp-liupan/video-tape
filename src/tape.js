@@ -1,7 +1,10 @@
-import RecordRTC from 'recordrtc'
+import RecordRTC from 'recordrtc';
 class Tape {
 	
 	constructor(videoEl){
+		if(!videoEl){
+			throw "Tape类缺少参数";
+		}
 		this.videoEl = videoEl;
 	}
 
@@ -13,11 +16,20 @@ class Tape {
 	 * @returns
 	 * @memberof Tape
 	 */
-	screenshot(callback,type='file',fileName='截图.png'){
+	screenshot(callback,type='base64',fileName='截图.png'){
 
 		//参数验证
 		if(!callback){
-			throw "截图方法没有传递回调函数";
+			throw "screenshot没有传递第一个参数";
+		}else if(!callback instanceof Function){
+			let type = typeof callback;
+			throw `screenshot第一个参数传值有误，只能传入Function类型`
+		}
+		if(type !== 'base64' || type !== 'file'){
+			throw "screenshot第二个参数传值有误，只能传入'base64'或者'file'"
+		}
+		if(!fileName instanceof String){
+			throw "screenshot第三个参数传值有误，只能传入String类型"
 		}
 
 		// 创建一个canvas
@@ -54,8 +66,9 @@ class Tape {
 			}
 			
 			canvasEl.toBlob((blob) => {
-				let pngFile = new File(blob,fileName,'image/png')
-				callback(pngFile);
+				let pngFile = new File([blob],fileName,{type:'image/png'})
+				let imageUrl = URL.createObjectURL(pngFile);
+				callback(pngFile,imageUrl);
 			})
 			
 		}
@@ -63,24 +76,43 @@ class Tape {
 		
 	}
 
-	//开始录制
+	/**
+	 *录制开始
+	 *
+	 * @memberof Tape
+	 */
 	tapeStart(){
-		if(!HTMLVideoElement.prototype.caputureStream){
+		if(!HTMLVideoElement.prototype.captureStream && !HTMLVideoElement.prototype.mozCaptureStream){
 			throw "该浏览器暂不支持录制功能"
 		}
-		let stream = this.videoEl.caputureStream();
+
+		let stream;
+		if(!HTMLVideoElement.prototype.captureStream){
+			stream = this.videoEl.mozCaptureStream();//兼容火狐
+		}else{
+			stream = this.videoEl.captureStream();
+		}
+		
 		this.rtc = new RecordRTC(stream,{
-			type:'video'
+			type:'video',
 		})
 		this.rtc.startRecording();
 	}
 
-	//暂停录制
+	/**
+	 * 暂停录制
+	 *
+	 * @memberof Tape
+	 */
 	tapePause(){
 		this.rtc.pauseRecording();
 	}
 
-	//继续录制
+	/**
+	 *继续录制
+	 *
+	 * @memberof Tape
+	 */
 	tapeResume(){
 		this.rtc.resumeRecording();
 	}
@@ -95,11 +127,18 @@ class Tape {
 	tapeStop(callback,fileName='录制.mp4'){
 		if(!callback){
 			throw "tapeStop缺少第一个参数"
+		}else if(!callback instanceof Function){
+			let type = typeof callback;
+			throw `tapeStop第一个参数传值有误，只能传入Function类型`
+		}
+		if(!fileName instanceof String){
+			throw "tapeStop第二个参数传值有误，只能传入String类型"
 		}
 		let self = this;
 		this.rtc.stopRecording((blobUrl) => {
 			let videoBlobFile = self.rtc.getBlob();
-			callback(videoBlobFile,blobUrl);
+			let vidoeFile = new File([videoBlobFile],fileName,{type:'video/mp4'})
+			callback(vidoeFile,blobUrl);
 		});
 	}
 }

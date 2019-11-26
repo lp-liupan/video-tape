@@ -1,15 +1,25 @@
 {
-  "name": "video-tape",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "video-tape.js",
+  "version": "1.0.1",
+  "description": "基于video标签播放内容进行截图和录制",
+  "main": "dist/video-tape.js",
+  "private":false,
   "scripts": {
-    "bundle": "rollup -c"
+	"bundle": "rollup -c",
+	"prepublishOnly": "npm run bundle"
   },
-  "author": "",
+  "files":[
+	  "dist",
+	  "package.json"
+  ],
+  "author": "liupan",
   "license": "ISC",
   "devDependencies": {
-    "rollup": "^1.27.5"
+    "rollup": "^1.27.5",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-filesize": "^6.2.1",
+    "rollup-plugin-terser": "^5.1.2",
+    "rollup-plugin-uglify": "^6.0.3"
   },
   "dependencies": {
     "recordrtc": "^5.5.8"
